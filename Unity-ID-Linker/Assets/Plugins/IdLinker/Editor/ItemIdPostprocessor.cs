@@ -43,10 +43,12 @@ namespace Derrixx.IdLinker.Editor
 			int itemsRegistered = 0;
 			foreach (var data in ProcessAssets(importedAssets))
 			{
-				foreach (string val in GetFieldsThatUseIdTable(table, data))
+				foreach ((string id, string fieldName) in GetFieldsThatUseIdTable(table, data))
 				{
 					RefData refData = RefData.FromAsset(data.Asset);
-					table.AddReferenceToId(val, refData);
+					refData.PropertyPath = fieldName;
+					
+					table.AddReferenceToId(id, refData);
 					itemsRegistered++;
 				}
 			}
@@ -57,12 +59,12 @@ namespace Derrixx.IdLinker.Editor
 			return itemsRegistered > 0;
 		}
 
-		private static IEnumerable<string> GetFieldsThatUseIdTable(IdTable table, AssetRefData data)
+		private static IEnumerable<(string id, string fieldName)> GetFieldsThatUseIdTable(IdTable table, AssetRefData data)
 		{
 			foreach (FieldInfo field in data.FieldsWithAttribute)
 			{
-				if (field.GetValue(data.Asset) is string str && table.Ids.Contains(str))
-					yield return str;
+				if (field.GetValue(data.Asset) is string id && table.Ids.Contains(id))
+					yield return (id, field.Name);
 			}
 		}
 
@@ -78,7 +80,7 @@ namespace Derrixx.IdLinker.Editor
 			{
 				if (table.RemoveAllReferencesOfObject(refData))
 				{
-					Debug.Log($"Removed object {refData.Path} from the ref table");
+					Debug.Log($"Removed object {refData.AssetPath} from the ref table");
 					return true;
 				}
 
