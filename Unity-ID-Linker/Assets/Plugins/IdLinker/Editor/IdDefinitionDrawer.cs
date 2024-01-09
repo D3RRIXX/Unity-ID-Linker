@@ -9,6 +9,8 @@ namespace Derrixx.IdLinker.Editor
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			var idProperty = property.FindPropertyRelative(nameof(IdDefinition.Id));
+			var assetRefsProperty = property.FindPropertyRelative("_assetRefs");
+			
 			string oldId = idProperty.stringValue;
 
 			var rect = new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
@@ -16,11 +18,12 @@ namespace Derrixx.IdLinker.Editor
 			EditorGUI.BeginChangeCheck();
 			EditorGUI.DelayedTextField(rect, idProperty, GUIContent.none);
 
+#if DRAW_REFS
 			position.y += EditorGUIUtility.singleLineHeight;
 			position.height -= EditorGUIUtility.singleLineHeight;
-
-			var assetRefsProperty = property.FindPropertyRelative("_assetRefs");
+			
 			EditorGUI.PropertyField(position, assetRefsProperty);
+#endif
 
 			if (EditorGUI.EndChangeCheck() && !string.Equals(idProperty.stringValue, oldId))
 			{
@@ -29,8 +32,6 @@ namespace Derrixx.IdLinker.Editor
 				{
 					UpdatedFieldValue(refData, idProperty.stringValue);
 				}
-
-				Debug.Log("Made changes");
 			}
 		}
 
@@ -47,11 +48,13 @@ namespace Derrixx.IdLinker.Editor
 			float lineHeight = EditorGUIUtility.singleLineHeight;
 			
 			float height = lineHeight;
+#if DRAW_REFS
 			while (property.NextVisible(true))
 			{
 				height += lineHeight;
 			}
-
+#endif
+			
 			return height;
 		}
 	}
