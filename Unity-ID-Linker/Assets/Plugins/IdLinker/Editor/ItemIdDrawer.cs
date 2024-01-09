@@ -15,7 +15,7 @@ namespace Derrixx.IdLinker.Editor
 				EditorGUI.LabelField(position, label.text, "Item ID must be a string.");
 				return;
 			}
-			
+
 			EditorGUI.BeginChangeCheck();
 			string[] options = GetDisplayedOptions();
 			int initialIndex = Array.IndexOf(options, property.stringValue);
@@ -24,14 +24,16 @@ namespace Derrixx.IdLinker.Editor
 			{
 				property.stringValue = options[index];
 				Object targetObject = property.serializedObject.targetObject;
-				
+
+				RefData refData = RefData.FromAsset(targetObject);
 				if (initialIndex != -1)
 				{
 					// Remove ref from previous id
-					IdTable.Instance.RemoveReferenceFromId(options[initialIndex], RefData.FromAsset(targetObject));
+					IdTable.Instance.RemoveReferenceFromId(options[initialIndex], refData);
 				}
 
-				IdTable.Instance.AddReferenceToId(options[index], RefData.FromAsset(targetObject));
+				refData.PropertyPath = property.propertyPath;
+				IdTable.Instance.AddReferenceToId(options[index], refData);
 			}
 		}
 
