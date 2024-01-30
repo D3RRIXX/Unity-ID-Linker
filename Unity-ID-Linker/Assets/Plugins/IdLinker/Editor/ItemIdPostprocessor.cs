@@ -70,7 +70,7 @@ namespace Derrixx.IdLinker.Editor
 
 		private static bool ProcessDeletedAssets(IdTable table, IEnumerable<string> deletedAssets)
 		{
-			int itemsUnregistered = deletedAssets.Select(RefData.FromPath).Count(AssetWasUnregistered);
+			int itemsUnregistered = deletedAssets.Select(RefData.FromAssetPath).Count(AssetWasUnregistered);
 			if (itemsUnregistered > 0)
 				Debug.Log($"Total objects unregistered: {itemsUnregistered}");
 

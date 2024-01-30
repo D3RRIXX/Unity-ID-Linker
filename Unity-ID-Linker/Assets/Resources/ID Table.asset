@@ -12,4 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 126ef340acdb69244a1008c5191cf19e, type: 3}
   m_Name: ID Table
   m_EditorClassIdentifier: 
-  _idDefinitions: []
+  _idDefinitions:
+  - Id: id 1
+    _assetRefs:
+    - AssetPath: Assets/Scripts/New Item 2.asset
+      PropertyPath: _id
+      Asset: {fileID: 11400000, guid: cce1b09b75144ed41a02ea1a33e8831f, type: 2}
+    - AssetPath: Assets/Scripts/New Item 3.asset
+      PropertyPath: _id
+      Asset: {fileID: 11400000, guid: def4cd44c3d41a54db69a560377ba15c, type: 2}
+  _useGuids: 0

@@ -13,8 +13,10 @@ namespace Derrixx.IdLinker
 		public static IdTable Instance => Resources.Load<IdTable>(TABLE_NAME);
 
 		[SerializeField] private List<IdDefinition> _idDefinitions = new();
+		[SerializeField] private bool _useGuids;
 	
 		public string[] Ids => _idDefinitions.Select(x => x.Id).ToArray();
+		public bool UseGuids => _useGuids;
 
 		public void AddReferenceToId(string id, RefData refData)
 		{

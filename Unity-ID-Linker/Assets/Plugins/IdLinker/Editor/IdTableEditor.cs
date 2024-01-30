@@ -10,10 +10,13 @@ namespace Derrixx.IdLinker.Editor
 	{
 		private ReorderableList _list;
 		private SerializedProperty _definitionsProperty;
+		private SerializedProperty _useGuids;
 
 		private void OnEnable()
 		{
 			_definitionsProperty = serializedObject.FindProperty("_idDefinitions");
+			_useGuids = serializedObject.FindProperty("_useGuids");
+
 			_list = new ReorderableList(serializedObject, _definitionsProperty)
 			{
 				displayAdd = true,
@@ -24,6 +27,43 @@ namespace Derrixx.IdLinker.Editor
 				elementHeightCallback = GetElementHeight,
 				drawHeaderCallback = DrawHeader,
 			};
+		}
+
+		public override void OnInspectorGUI()
+		{
+			serializedObject.Update();
+			_list.DoLayoutList();
+
+			Utils.DrawPropertyFieldWithCallbackOnValueChanged(_useGuids, new GUIContent("Use GUIDs"), property =>
+			{
+				Debug.Log(property.boolValue ? "Use GUIDs" : "Use asset paths");
+				if (property.boolValue)
+				{
+					// Convert all refs to GUIDs
+					for (int i = 0; i < _definitionsProperty.arraySize; i++)
+					{
+						foreach (SerializedProperty refData in _definitionsProperty.GetArrayElementAtIndex(i).FindPropertyRelative("_assetRefs"))
+						{
+							SerializedProperty path = refData.FindPropertyRelative(nameof(RefData.AssetPath));
+							path.stringValue = AssetDatabase.AssetPathToGUID(path.stringValue);
+						}
+					}
+				}
+				else
+				{
+					// Convert all refs to asset paths
+					for (int i = 0; i < _definitionsProperty.arraySize; i++)
+					{
+						foreach (SerializedProperty refData in _definitionsProperty.GetArrayElementAtIndex(i).FindPropertyRelative("_assetRefs"))
+						{
+							SerializedProperty path = refData.FindPropertyRelative(nameof(RefData.AssetPath));
+							path.stringValue = AssetDatabase.GUIDToAssetPath(path.stringValue);
+						}
+					}
+				}
+			});
+			
+			serializedObject.ApplyModifiedProperties();
 		}
 
 		private void OnItemAdded(ReorderableList list)
@@ -74,12 +114,5 @@ namespace Derrixx.IdLinker.Editor
 		}
 
 		private float GetElementHeight(int index) => EditorGUI.GetPropertyHeight(_definitionsProperty.GetArrayElementAtIndex(index), includeChildren: true);
-
-		public override void OnInspectorGUI()
-		{
-			serializedObject.Update();
-			_list.DoLayoutList();
-			serializedObject.ApplyModifiedProperties();
-		}
 	}
 }
