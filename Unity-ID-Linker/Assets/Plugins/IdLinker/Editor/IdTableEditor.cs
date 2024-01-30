@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -36,34 +37,22 @@ namespace Derrixx.IdLinker.Editor
 
 			Utils.DrawPropertyFieldWithCallbackOnValueChanged(_useGuids, new GUIContent("Use GUIDs"), property =>
 			{
-				Debug.Log(property.boolValue ? "Use GUIDs" : "Use asset paths");
-				if (property.boolValue)
-				{
-					// Convert all refs to GUIDs
-					for (int i = 0; i < _definitionsProperty.arraySize; i++)
-					{
-						foreach (SerializedProperty refData in _definitionsProperty.GetArrayElementAtIndex(i).FindPropertyRelative("_assetRefs"))
-						{
-							SerializedProperty path = refData.FindPropertyRelative(nameof(RefData.AssetPath));
-							path.stringValue = AssetDatabase.AssetPathToGUID(path.stringValue);
-						}
-					}
-				}
-				else
-				{
-					// Convert all refs to asset paths
-					for (int i = 0; i < _definitionsProperty.arraySize; i++)
-					{
-						foreach (SerializedProperty refData in _definitionsProperty.GetArrayElementAtIndex(i).FindPropertyRelative("_assetRefs"))
-						{
-							SerializedProperty path = refData.FindPropertyRelative(nameof(RefData.AssetPath));
-							path.stringValue = AssetDatabase.GUIDToAssetPath(path.stringValue);
-						}
-					}
-				}
+				bool useGuids = property.boolValue;
+				Func<string, string> conversion = useGuids ? AssetDatabase.AssetPathToGUID : AssetDatabase.GUIDToAssetPath;
+				ConvertAssetRefsPaths(_definitionsProperty, conversion);
 			});
-			
+
 			serializedObject.ApplyModifiedProperties();
+		}
+
+		private static void ConvertAssetRefsPaths(SerializedProperty definitionsProperty, Func<string, string> conversion)
+		{
+			foreach (SerializedProperty idDefinitionProperty in definitionsProperty)
+			foreach (SerializedProperty refData in EnumerateAssetRefs(idDefinitionProperty))
+			{
+				SerializedProperty pathProperty = refData.FindPropertyRelative(nameof(RefData.AssetPath));
+				pathProperty.stringValue = conversion(pathProperty.stringValue);
+			}
 		}
 
 		private void OnItemAdded(ReorderableList list)
@@ -92,7 +81,7 @@ namespace Derrixx.IdLinker.Editor
 
 		private static void RemoveIdFromReferencedAssets(SerializedProperty idDefinitionProperty)
 		{
-			foreach (SerializedProperty refData in idDefinitionProperty.FindPropertyRelative("_assetRefs"))
+			foreach (SerializedProperty refData in EnumerateAssetRefs(idDefinitionProperty))
 			{
 				SerializedProperty assetProperty = refData.FindPropertyRelative(nameof(RefData.Asset));
 				using var serObj = new SerializedObject(assetProperty.objectReferenceValue);
@@ -114,5 +103,7 @@ namespace Derrixx.IdLinker.Editor
 		}
 
 		private float GetElementHeight(int index) => EditorGUI.GetPropertyHeight(_definitionsProperty.GetArrayElementAtIndex(index), includeChildren: true);
+
+		private static SerializedProperty EnumerateAssetRefs(SerializedProperty idDefinitionProperty) => idDefinitionProperty.FindPropertyRelative("_assetRefs");
 	}
 }
