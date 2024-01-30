@@ -13,12 +13,15 @@ MonoBehaviour:
   m_Name: ID Table
   m_EditorClassIdentifier: 
   _idDefinitions:
-  - Id: id 1
+  - Id: rename this
     _assetRefs:
-    - AssetPath: Assets/Scripts/New Item 2.asset
+    - AssetPath: cce1b09b75144ed41a02ea1a33e8831f
       PropertyPath: _id
       Asset: {fileID: 11400000, guid: cce1b09b75144ed41a02ea1a33e8831f, type: 2}
-    - AssetPath: Assets/Scripts/New Item 3.asset
+    - AssetPath: def4cd44c3d41a54db69a560377ba15c
       PropertyPath: _id
       Asset: {fileID: 11400000, guid: def4cd44c3d41a54db69a560377ba15c, type: 2}
-  _useGuids: 0
+    - AssetPath: 82eac23ac4de3f6478db8283ef1b6855
+      PropertyPath: _id
+      Asset: {fileID: 11400000, guid: 82eac23ac4de3f6478db8283ef1b6855, type: 2}
+  _useGuids: 1

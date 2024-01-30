@@ -9,7 +9,7 @@ namespace Derrixx.IdLinker
 	[Serializable]
 	public struct RefData
 	{
-		[HideInInspector] public string AssetPath;
+		/*[HideInInspector]*/ public string AssetPath;
 		public string PropertyPath;
 		public Object Asset;
 
